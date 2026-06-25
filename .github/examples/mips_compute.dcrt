@@ -1,0 +1,11 @@
+target mips
+entry main
+
+event main:
+    li r1, 12
+    li r2, 1
+    li r3, 100
+    li r4, 0
+    add r4, r1, r2
+    sub r3, r3, r2
+    ret

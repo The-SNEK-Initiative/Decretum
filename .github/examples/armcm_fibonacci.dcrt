@@ -1,0 +1,18 @@
+target armcm
+entry main
+
+event main:
+    mov r0, 0
+    mov r1, 1
+    mov r2, 0
+    mov r3, 20
+test:
+    cmp r2, r3
+    beq main.done
+    mov r4, r0
+    add r0, r1, r4
+    mov r1, r4
+    add r2, r2, 1
+    b main.test
+done:
+    ret

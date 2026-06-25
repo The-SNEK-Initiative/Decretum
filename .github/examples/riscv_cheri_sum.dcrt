@@ -1,0 +1,22 @@
+target riscv_cheri
+entry main
+
+event main:
+    li a0, 0             ; sum = 0
+    li a1, 1             ; counter = 1
+    li a2, 20            ; N = 20
+    li a3, 10            ; threshold for if-else
+    while a2             ; while loop counter non-zero
+        ; check if counter (a1) > threshold (a3)
+        slt t0, a3, a1   ; t0 = 1 if a1 > a3
+        xori t0, t0, 1   ; invert: t0 = 1 if a1 <= a3
+        if t0            ; if (a1 <= a3)
+            add a0, a0, a1
+        else             ; else (a1 > a3)
+            slli a4, a1, 1
+            add a0, a0, a4
+        endif
+        addi a1, a1, 1
+        addi a2, a2, -1
+    endwhile
+    ret

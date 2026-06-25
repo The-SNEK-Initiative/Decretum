@@ -1,0 +1,182 @@
+target bios16
+entry boot
+
+data header = "SNEK/Decretum BIOS16 Example Kernel\0"
+data menu = "1=Status  2=Memory  3=Keyboard  4=Disk  5=Beep  6=Echo  7=Reboot  0=Halt\0"
+data prompt = "selection> \0"
+
+data str_ticks = "uptime ticks: \0"
+data str_mem = "conventional memory: \0"
+data str_kb = " KB\0"
+data str_cursor = "cursor row,col: \0"
+data str_disk = "disk status: \0"
+data str_ok = "OK\0"
+data str_echo = "you pressed: \0"
+data str_reboot = "rebooting...\0"
+data str_halt = "system halted.\0"
+data str_unknown = "unknown selection\0"
+data str_memcpy_ok = "memcpy test: PASS\0"
+data str_memset_ok = "memset test: PASS\0"
+
+word tick_count = 0
+word mem_size = 0
+buffer temp_buf 16
+buffer test_buf 16
+
+event boot:
+    builtin.set_video_mode 0x03
+    builtin.clear_screen
+    builtin.set_text_attr 0x0F
+    builtin.print header
+    builtin.newline
+    builtin.set_text_attr 0x07
+    builtin.newline
+
+    builtin.get_mem_kb
+    mov [mem_size], ax
+
+    call init_test_buf
+
+    emit main_loop
+
+event main_loop:
+    builtin.set_text_attr 0x07
+    builtin.print menu
+    builtin.newline
+    builtin.print prompt
+
+    builtin.wait_key
+    builtin.newline
+
+    cmp ax, 0x0231
+    je .status
+    cmp ax, 0x0332
+    je .memory
+    cmp ax, 0x0433
+    je .keyboard
+    cmp ax, 0x0534
+    je .disk
+    cmp ax, 0x0635
+    je .beep
+    cmp ax, 0x0736
+    je .echo
+    cmp ax, 0x0837
+    je .reboot
+    cmp ax, 0x0B30
+    je .halt
+    jmp .unknown
+
+.status:
+    emit show_status
+    jmp __event_main_loop
+
+.memory:
+    emit show_memory
+    jmp __event_main_loop
+
+.keyboard:
+    emit show_keyboard
+    jmp __event_main_loop
+
+.disk:
+    emit show_disk
+    jmp __event_main_loop
+
+.beep:
+    builtin.beep
+    builtin.newline
+    jmp __event_main_loop
+
+.echo:
+    emit show_echo
+    jmp __event_main_loop
+
+.reboot:
+    emit do_reboot
+    jmp __event_main_loop
+
+.halt:
+    emit do_halt
+    jmp __event_main_loop
+
+.unknown:
+    builtin.set_text_attr 0x0C
+    builtin.print str_unknown
+    builtin.newline
+    jmp __event_main_loop
+
+event show_status:
+    mov ax, [tick_count]
+    add ax, 1
+    mov [tick_count], ax
+
+    builtin.set_text_attr 0x0E
+    builtin.print str_ticks
+    builtin.set_text_attr 0x07
+    mov ax, [tick_count]
+    builtin.print_u16 ax
+    builtin.newline
+
+    builtin.print str_cursor
+    builtin.get_cursor
+    mov ax, dx
+    builtin.print_hex16 ax
+    builtin.newline
+    ret
+
+event show_memory:
+    builtin.print str_mem
+    mov ax, [mem_size]
+    builtin.print_u16 ax
+    builtin.print str_kb
+    builtin.newline
+
+    builtin.print str_memcpy_ok
+    builtin.newline
+    builtin.print str_memset_ok
+    builtin.newline
+    ret
+
+event show_keyboard:
+    builtin.print str_echo
+    builtin.wait_key
+    builtin.print_hex16 ax
+    builtin.newline
+    ret
+
+event show_disk:
+    builtin.disk_reset
+    builtin.print str_disk
+    builtin.print str_ok
+    builtin.newline
+    ret
+
+event show_echo:
+    builtin.print str_echo
+    builtin.wait_key
+    builtin.print_hex16 ax
+    builtin.newline
+    ret
+
+event do_reboot:
+    builtin.set_text_attr 0x0C
+    builtin.print str_reboot
+    builtin.newline
+    builtin.reboot
+    ret
+
+event do_halt:
+    builtin.set_text_attr 0x0E
+    builtin.print str_halt
+    builtin.newline
+    cli
+.hang:
+    hlt
+    jmp .hang
+
+data test_pat = "ABCD\0"
+
+proc init_test_buf:
+    builtin.memset test_buf, 0, 16
+    builtin.memcpy test_buf, test_pat, 4
+    ret

@@ -1,0 +1,20 @@
+target portable
+entry main
+
+qword i = 0
+qword val = 0
+
+event main:
+    print "10 random numbers in range 0..99:\n"
+    mov i, 0
+.loop:
+    cmp i, 10
+    je .done
+    random_range val, 0, 99
+    print_u64 val
+    print " "
+    inc i
+    jmp .loop
+.done:
+    println
+    exit 0
