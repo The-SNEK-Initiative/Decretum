@@ -8,7 +8,7 @@ An event driven low level language with 84 compiler targets. The same syntax wor
 
 Decretum is written in Rust and includes a parser, a portable bytecode runtime with a register based virtual machine, 84 direct machine code backends, a peephole optimizer, a byte level optimizer, and a wip gui IDE.
 
-### Examples are available in [examples](https://github.com/The-SNEK-Initiative/Decretum/edit/main/README.md).
+### Examples are available in [examples](https://github.com/The-SNEK-Initiative/Decretum/tree/main/.github/examples).
 
 ## Creator notes
 ```
