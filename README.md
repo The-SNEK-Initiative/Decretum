@@ -18,20 +18,21 @@ the Initiative its other projects, but I have tried to devote everything I could
 really do find it a goal fulfilled for me to be able to write this, and present it to you in the form that you now
 have it. The idea originally came to me when I was still learning many of the kernel architectures, and found it
 extremely annoying to have to learn a new lang each time I wanted to do something. The original Decretum, the core
-as one might call it, I wrote in what, around 6 days? It target portable/win64, vm and bios16, it wa only later,
-and especially recently that it exploded as much as it did thanks to the suggestions of the wonderful people around
-me who gave me tons of inspiration for the project, and motivated me when I had lost the will to continue.
+as one might call it, I wrote in what, around 6 days? It targeted portable/win64, vm and bios16, it was only
+later, and especially recently that it exploded as much as it did thanks to the suggestions of the wonderful
+people around me who gave me tons of inspiration for the project, and motivated me when I had lost the will to
+continue.
 
 Thank you to everyone for being here, and for choosing to interact with Decretum.
 
 - -- ATroubledSnake
 -----BEGIN PGP SIGNATURE-----
 
-iJEEARYJADkWIQTVlV8jwWDsZcXVOXAHrKi6sKcGwAUCajzyxRsUgAAAAAAEAA5t
-YW51MiwyLjUrMS4xMiwyLDEACgkQB6yourCnBsChLwEA7sLSGnMgG3SM7q8SpPuJ
-YiQCqJU+/d2EWwMGSRQrhoAA/3fciRMrab5xdepqnBAjVVba6+TfBew9FDh5m0FZ
-KqUN
-=wdRS
+iJAEARYJADkWIQTVlV8jwWDsZcXVOXAHrKi6sKcGwAUCajz1GhsUgAAAAAAEAA5t
+YW51MiwyLjUrMS4xMiwyLDEACgkQB6yourCnBsA6ngD+MeEOGjcRVoYf6b0laBJ3
+GTKgzZT8STUdZE4piaHNhNsA+KnI0wFgTij+kWLWCSlxaR/hqrHqD0Ii3c0HcBsN
+6AE=
+=XAZO
 -----END PGP SIGNATURE-----
 ```
 
