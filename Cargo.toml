@@ -1,0 +1,37 @@
+[package]
+name = "decretum"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = ["compiler-op"]
+compiler-op = []
+
+[dependencies]
+clap = { version = "4.5.38", features = ["derive"] }
+eframe = "0.34.1"
+egui_commonmark = "0.23.0"
+egui_extras = { version = "0.34.1", features = ["syntect"] }
+html2md = "0.2.15"
+image = { version = "0.25", default-features = false, features = ["png", "ico"] }
+rfd = "0.15"
+
+
+[[bin]]
+name = "ide"
+path = "src/bin/ide.rs"
+
+[[bin]]
+name = "decretum"
+path = "src/main.rs"
+
+[[bin]]
+name = "dcrt_rt"
+path = "src/bin/dcrt_rt.rs"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
