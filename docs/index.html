@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fa">
+  <title>Overview &mdash; Decretum DCRT</title>
+  <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="brand">Decretum DCRT</p>
+      <div class="nav-group"><h3>Start</h3><ul><li><a href="./index.html">Overview</a></li><li><a href="./getting-started/index.html">Getting Started</a></li></ul></div>
+      <div class="nav-group"><h3>Language</h3><ul><li><a href="./language/syntax.html">Syntax</a></li><li><a href="./language/expressions.html">Instruction Model</a></li><li><a href="./language/functions.html">Helpers</a></li></ul></div>
+      <div class="nav-group"><h3>Runtime</h3><ul><li><a href="./runtime/execution-model.html">Execution Model</a></li><li><a href="./runtime/constraints.html">Target Constraints</a></li><li><a href="./runtime/bios-builtins.html">BIOS Builtins</a></li></ul></div>
+      <div class="nav-group"><h3>Compiler</h3><ul><li><a href="./compiler/backends.html">Backends</a></li><li><a href="./compiler/pe-target.html">PE Target</a></li></ul></div>
+      <div class="nav-group"><h3>Tools</h3><ul><li><a href="./tools/ide.html">Decretum IDE</a></li></ul></div>
+      <div class="nav-group"><h3>Examples</h3><ul><li><a href="./examples/full-kernel.html">BIOS Kernel</a></li><li><a href="./examples/compute-pe.html">Compute</a></li><li><a href="./examples/fibonacci.html">Fibonacci</a></li><li><a href="./examples/random.html">Random Numbers</a></li><li><a href="./examples/string-ops.html">String Ops</a></li></ul></div>
+    </aside>
+    <main class="content">
+      <article class="card">
+        <h1>Decretum DCRT</h1>
+        <p>Decretum DCRT is an event driven low level language with 84 compiler targets. The same syntax works across all of them, but the code you write is still target specific: a program written for MIPS will not compile for quantum without changes. You write for each architecture using the same event and proc block structure, data declarations, and control flow constructs, but you use that architecture's registers, instructions, and calling conventions.</p>
+
+        <h2>Design Goals</h2>
+        <ul>
+          <li>Assembler level control with clearer structure than raw assembly</li>
+          <li>Event blocks as first class control flow units</li>
+          <li>High level constructs like <code>if</code> and <code>while</code> that compile to native jumps</li>
+          <li>Portable bytecode path for host executables on Windows and Linux</li>
+          <li>Direct machine code path for every major architecture family in computing history</li>
+          <li>String operations, assertions, random generation, and math built into the language</li>
+          <li>Zero external assembler or linker dependencies for any target</li>
+        </ul>
+
+        <h2>Architecture Targets</h2>
+        <p>Decretum compiles to 84 targets spanning 19 architecture families: x86 (8 variants), Intel evolution (3), ARM (6), RISC-V (3), classic RISC (7), FPGA soft cores (5), academic or educational (3), 8 bit CPU classics (5), 8 bit MCUs (5), 16 bit MCUs (6), 32 bit MCU or RISC (3), DSPs (3), Hitachi, 68k, and console (4), PDP, VAX, and HP (4), mainframe and vintage (4), VLIW (3), military and aerospace (2), Soviet and exotic (6), and special purpose plus quantum (5). Every backend has its own instruction encoding, register model, and peephole optimizer; some use a two pass assembly model with label resolution, others a single pass model with in place branch patching. All backends support high level <code>if</code>/<code>elif</code>/<code>else</code>/<code>endif</code>/<code>while</code>/<code>endwhile</code> control flow constructs.</p>
+        <p>See the <a href="./compiler/backends.html">full backend list</a> for details on every target, its CLI command, output format, and architecture notes.</p>
+
+        <h2>Target Coverage can be found in <a href="./runtime/constraints.html">Target Constraints</a></h2>
+
+        <h2>Internal Architecture</h2>
+        <p>The Decretum compiler is organized into a parser frontend, a portable bytecode backend, and 84 direct machine code backends. The parser tokenizes <code>.dcrt</code> source into a <code>Program</code> structure with target, entry event, data declarations, and code blocks. Code blocks contain raw instruction lines that each backend interprets using its own lower function.</p>
+        <p>The portable backend compiles to a 51 opcode bytecode format executed by a register based VM with 16 registers, a memory map, string storage, and a 320 bit ARX PRNG called DCRNG. The direct backends each encode instructions to binary and write the target output format, using either a two pass model with label maps or a single pass model with in place branch patching. A shared peephole optimizer collapses NOPs and removes dead code, and a byte level optimizer strips trailing fill bytes.</p>
+        <p>The IDE is built with egui and eframe. It embeds all documentation as static HTML strings via the <code>docs_data</code> module and can run embedded bytecode payloads through the portable runtime.</p>
+
+        <h2>Quick Links</h2>
+        <p><a href="./getting-started/index.html">Getting Started</a></p>
+        <p><a href="./compiler/backends.html">Full Backend List (84 targets)</a></p>
+        <p><a href="./examples/full-kernel.html">Bootable Kernel Example</a></p>
+        <p><a href="./examples/compute-pe.html">Compute PE Example</a></p>
+      </article>
+    </main>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()">Dark</button>
+  <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}var b=document.querySelector('.theme-toggle');if(b){b.textContent=(t==='dark')?'Light':'Dark';}})();function toggleTheme(){var d=document.documentElement;var c=d.getAttribute('data-theme');var n=(c==='dark')?'light':'dark';d.setAttribute('data-theme',n);localStorage.setItem('theme',n);var b=document.querySelector('.theme-toggle');if(b){b.textContent=(n==='dark')?'Light':'Dark';}}</script>
+</body>
+</html>

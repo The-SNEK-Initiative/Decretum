@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compute PE Example &mdash; Decretum DCRT</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="brand">Decretum DCRT</p>
+      <div class="nav-group"><h3>Start</h3><ul><li><a href="../index.html">Overview</a></li><li><a href="../getting-started/index.html">Getting Started</a></li></ul></div>
+      <div class="nav-group"><h3>Language</h3><ul><li><a href="../language/syntax.html">Syntax</a></li><li><a href="../language/expressions.html">Instruction Model</a></li><li><a href="../language/functions.html">Helpers</a></li></ul></div>
+      <div class="nav-group"><h3>Runtime</h3><ul><li><a href="../runtime/execution-model.html">Execution Model</a></li><li><a href="../runtime/constraints.html">Target Constraints</a></li><li><a href="../runtime/bios-builtins.html">BIOS Builtins</a></li></ul></div>
+      <div class="nav-group"><h3>Compiler</h3><ul><li><a href="../compiler/backends.html">Backends</a></li><li><a href="../compiler/pe-target.html">PE Target</a></li></ul></div>
+      <div class="nav-group"><h3>Tools</h3><ul><li><a href="../tools/ide.html">Decretum IDE</a></li></ul></div>
+      <div class="nav-group"><h3>Examples</h3><ul><li><a href="./full-kernel.html">BIOS Kernel</a></li><li><a href="./compute-pe.html">Compute</a></li><li><a href="./fibonacci.html">Fibonacci</a></li><li><a href="./random.html">Random Numbers</a></li><li><a href="./string-ops.html">String Ops</a></li></ul></div>
+    </aside>
+    <main class="content">
+      <article class="card">
+        <h1>Compute Example</h1>
+
+        <p>Source file: <code>.github/examples/compute.dcrt</code></p>
+        <p>This MIPS target program demonstrates basic arithmetic operations: loading immediate values, addition, subtraction, and passing results between registers. It initializes <code>r1 = 12</code>, <code>r2 = 1</code>, <code>r3 = 100</code>, then computes <code>r4 = r1 + r2</code> and <code>r3 = r3 - r2</code>.</p>
+
+        <h2>Features Demonstrated</h2>
+        <ul>
+          <li><code>li</code> for loading immediate values</li>
+          <li><code>add</code> for register addition</li>
+          <li><code>sub</code> for register subtraction</li>
+          <li>MIPS register usage conventions</li>
+        </ul>
+
+        <h2>Build</h2>
+        <pre><code>cargo run -- compile-arch .github/examples/compute.dcrt --out-file build/compute_mips.bin</code></pre>
+        <p>The output is a raw binary containing the encoded MIPS instructions.</p>
+      </article>
+    </main>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()">Dark</button>
+  <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}var b=document.querySelector('.theme-toggle');if(b){b.textContent=(t==='dark')?'Light':'Dark';}})();function toggleTheme(){var d=document.documentElement;var c=d.getAttribute('data-theme');var n=(c==='dark')?'light':'dark';d.setAttribute('data-theme',n);localStorage.setItem('theme',n);var b=document.querySelector('.theme-toggle');if(b){b.textContent=(n==='dark')?'Light':'Dark';}}</script>
+</body>
+</html>

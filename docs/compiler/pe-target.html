@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PE Target &mdash; Decretum DCRT</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="brand">Decretum DCRT</p>
+      <div class="nav-group"><h3>Start</h3><ul><li><a href="../index.html">Overview</a></li><li><a href="../getting-started/index.html">Getting Started</a></li></ul></div>
+      <div class="nav-group"><h3>Language</h3><ul><li><a href="../language/syntax.html">Syntax</a></li><li><a href="../language/expressions.html">Instruction Model</a></li><li><a href="../language/functions.html">Helpers</a></li></ul></div>
+      <div class="nav-group"><h3>Runtime</h3><ul><li><a href="../runtime/execution-model.html">Execution Model</a></li><li><a href="../runtime/constraints.html">Target Constraints</a></li><li><a href="../runtime/bios-builtins.html">BIOS Builtins</a></li></ul></div>
+      <div class="nav-group"><h3>Compiler</h3><ul><li><a href="./backends.html">Backends</a></li><li><a href="./pe-target.html">PE Target</a></li></ul></div>
+      <div class="nav-group"><h3>Tools</h3><ul><li><a href="../tools/ide.html">Decretum IDE</a></li></ul></div>
+      <div class="nav-group"><h3>Examples</h3><ul><li><a href="../examples/full-kernel.html">BIOS Kernel</a></li><li><a href="../examples/compute-pe.html">Compute</a></li><li><a href="../examples/fibonacci.html">Fibonacci</a></li><li><a href="../examples/random.html">Random Numbers</a></li><li><a href="../examples/string-ops.html">String Ops</a></li></ul></div>
+    </aside>
+    <main class="content">
+      <article class="card">
+        <h1>Windows PE Target</h1>
+
+        <h2>Build Flow</h2>
+        <ol>
+          <li>Compile Decretum source into portable bytecode using the same pipeline as <code>compile-bytecode</code></li>
+          <li>Embed the bytecode payload into the runtime executable by appending it after the PE sections</li>
+          <li>The runtime executable is a prebuilt binary from <code>src/bin/dcrt_rt.rs</code> that scans itself for the embedded bytecode at launch</li>
+        </ol>
+        <p>The PE runtime executes the embedded Decretum bytecode entry event when launched. It reads its own executable file, locates the bytecode payload via a 16 byte magic signature, and passes it to the <code>BytecodeRuntime</code> interpreter. The magic signature uses the byte sequence <code>{0xDE, 0xC0, ...}</code> with each byte offset by +1 from the standard DCB header to prevent false matches.</p>
+
+        <h2>Usage</h2>
+        <pre><code>cargo run -- compile-pe examples/compute_pe.dcrt --out-file build/compute_pe.exe</code></pre>
+        <p>The output is a standalone Windows executable that runs the compiled Decretum program. No external dependencies, DLLs, or runtime installations are required.</p>
+
+        <h2>Runtime Profiles</h2>
+        <p>Two runtime profiles exist. The lightweight profile supports standard arithmetic, I/O, control flow, and string operations. The full profile adds support for the <code>compile_decretum</code> opcode, enabling self compilation at runtime. The full profile is enabled by the <code>compiler-op</code> Cargo feature.</p>
+
+        <h2>Notes</h2>
+        <p>No NASM or external assembler is required for this path. The PE executable is self contained with all runtime logic baked into the binary. The <code>dcrt_rt</code> runtime stub can also be compiled as a standalone binary that loads <code>.dcb</code> files from disk at runtime.</p>
+      </article>
+    </main>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()">Dark</button>
+  <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}var b=document.querySelector('.theme-toggle');if(b){b.textContent=(t==='dark')?'Light':'Dark';}})();function toggleTheme(){var d=document.documentElement;var c=d.getAttribute('data-theme');var n=(c==='dark')?'light':'dark';d.setAttribute('data-theme',n);localStorage.setItem('theme',n);var b=document.querySelector('.theme-toggle');if(b){b.textContent=(n==='dark')?'Light':'Dark';}}</script>
+</body>
+</html>

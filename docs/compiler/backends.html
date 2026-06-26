@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fa">
+  <title>Backends &mdash; Decretum DCRT</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="brand">Decretum DCRT</p>
+      <div class="nav-group"><h3>Start</h3><ul><li><a href="../index.html">Overview</a></li><li><a href="../getting-started/index.html">Getting Started</a></li></ul></div>
+      <div class="nav-group"><h3>Language</h3><ul><li><a href="../language/syntax.html">Syntax</a></li><li><a href="../language/expressions.html">Instruction Model</a></li><li><a href="../language/functions.html">Helpers</a></li></ul></div>
+      <div class="nav-group"><h3>Runtime</h3><ul><li><a href="../runtime/execution-model.html">Execution Model</a></li><li><a href="../runtime/constraints.html">Target Constraints</a></li><li><a href="../runtime/bios-builtins.html">BIOS Builtins</a></li></ul></div>
+      <div class="nav-group"><h3>Compiler</h3><ul><li><a href="./backends.html">Backends</a></li><li><a href="./pe-target.html">PE Target</a></li></ul></div>
+      <div class="nav-group"><h3>Tools</h3><ul><li><a href="../tools/ide.html">Decretum IDE</a></li></ul></div>
+      <div class="nav-group"><h3>Examples</h3><ul><li><a href="../examples/full-kernel.html">BIOS Kernel</a></li><li><a href="../examples/compute-pe.html">Compute</a></li><li><a href="../examples/fibonacci.html">Fibonacci</a></li><li><a href="../examples/random.html">Random Numbers</a></li><li><a href="../examples/string-ops.html">String Ops</a></li></ul></div>
+    </aside>
+    <main class="content">
+      <article class="card">
+        <h1>Compiler Backends</h1>
+
+        <p>Decretum compiles to <strong>84 targets</strong> covering every major architecture family from 4 bit microprocessors to 64 qubit quantum circuits. The syntax is the same across all targets, but the programs themselves are target specific you use each architecture's own registers, instructions, and addressing modes. Each backend has its own instruction encoding, register model, and output format, and runs a peephole optimization pass. Some backends use a two pass assembly model with label resolution; others use a single pass model with in place branch patching. All backends support high level <code>if</code>, <code>elif</code>, <code>else</code>, <code>endif</code>, <code>while</code>, and <code>endwhile</code> control flow constructs.</p>
+
+        <h2>How to Compile</h2>
+        <p>Use <code>compile-arch</code> which detects the target from the source file and dispatches to the right backend automatically:</p>
+        <pre><code>decretum compile-arch program.dcrt --out-file output.bin</code></pre>
+        <p>Or use the target specific command directly:</p>
+        <pre><code>decretum compile-riscv program.dcrt --out-file output.bin</code></pre>
+
+        <h2>x86 Family</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>bios16</code></td><td><code>.img</code> + <code>.kernel.bin</code></td><td>16 bit real mode, BIOS interrupts, bootable image with stage2 kernel payload</td></tr>
+            <tr><td><code>i8086</code></td><td><code>.bin</code></td><td>Intel 8086 16 bit real mode, segment and offset addressing</td></tr>
+            <tr><td><code>uefi</code></td><td><code>.efi</code></td><td>x86-64 PE32+ UEFI application using SystemTable for console I/O</td></tr>
+            <tr><td><code>x86_64</code></td><td><code>.bin</code></td><td>Standalone x86-64 flat binary, shares the UEFI assembler backend</td></tr>
+            <tr><td><code>win64</code></td><td><code>.exe</code></td><td>Windows 64 bit PE executable with embedded bytecode runtime</td></tr>
+            <tr><td><code>win32</code></td><td><code>.exe</code></td><td>Windows 32 bit PE using i386 instruction set</td></tr>
+            <tr><td><code>elf64</code></td><td><code>.elf</code></td><td>Linux x86-64 ELF64 executable with PT_LOAD segments</td></tr>
+            <tr><td><code>elf32</code></td><td><code>.elf</code></td><td>Linux i386 ELF32 executable</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Intel Evolution</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>i4004</code></td><td><code>.bin</code></td><td>Intel 4004 4 bit, 16 by 4 bit registers, 8 bit instruction words, accumulator based</td></tr>
+            <tr><td><code>i8008</code></td><td><code>.bin</code></td><td>Intel 8008 8 bit, accumulator plus 6 GPRs, 14 bit addressing</td></tr>
+            <tr><td><code>i8080</code></td><td><code>.bin</code></td><td>Intel 8080 8 bit, full register set with flags and stack operations</td></tr>
+          </tbody>
+        </table>
+
+        <h2>ARM Family</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>armcm</code></td><td><code>.bin</code></td><td>ARM Cortex-M Thumb2, vector table at 0x0000, 16 registers</td></tr>
+            <tr><td><code>arm7tdmi</code></td><td><code>.bin</code></td><td>ARMv4T with ARM plus Thumb encoding, 16 GPRs, BX interworking</td></tr>
+            <tr><td><code>arm9</code></td><td><code>.bin</code></td><td>ARMv5TE, ARM9 core with enhanced DSP instructions</td></tr>
+            <tr><td><code>aarch64</code></td><td><code>.bin</code></td><td>ARM64 A64, 31 GPRs, ADRP and ADD PC relative data access</td></tr>
+            <tr><td><code>macho</code></td><td><code>.macho</code></td><td>macOS Mach-O 64 bit for Apple Silicon, wraps AArch64 code</td></tr>
+            <tr><td><code>cheri</code></td><td><code>.bin</code></td><td>Morello CHERI on ARM64 with capability registers</td></tr>
+          </tbody>
+        </table>
+
+        <h2>RISC-V Family</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>riscv</code></td><td><code>.bin</code></td><td>RISC-V RV32I, 32 registers, R/I/S/B/U/J type formats</td></tr>
+            <tr><td><code>riscv64</code></td><td><code>.bin</code></td><td>RISC-V RV64I, 64 bit registers and address space</td></tr>
+            <tr><td><code>riscv_cheri</code></td><td><code>.bin</code></td><td>RISC-V with CHERI capability extensions</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Classic RISC</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>mips</code></td><td><code>.bin</code></td><td>MIPS R3000, 32 GPRs, R/I/J encoding, delay slots</td></tr>
+            <tr><td><code>ppc</code></td><td><code>.bin</code></td><td>PowerPC e300, 32 GPRs, condition register with CR bits</td></tr>
+            <tr><td><code>ppc740</code></td><td><code>.bin</code></td><td>PowerPC G3, 32 bit PPC with FPU</td></tr>
+            <tr><td><code>ppc970</code></td><td><code>.bin</code></td><td>PowerPC G5, 64 bit PPC with VMX, 64 bit ld and std</td></tr>
+            <tr><td><code>sparc</code></td><td><code>.bin</code></td><td>SPARC v8, register windows, annulled branches, delay slots</td></tr>
+            <tr><td><code>alpha</code></td><td><code>.bin</code></td><td>DEC Alpha 64 bit, 32 integer registers, unique encoding</td></tr>
+            <tr><td><code>parisc</code></td><td><code>.bin</code></td><td>HP PA-RISC, 32 GPRs, 64 bit architecture</td></tr>
+          </tbody>
+        </table>
+
+        <h2>FPGA Soft Cores</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>openrisc</code></td><td><code>.bin</code></td><td>OpenRISC OR1K, 32 GPRs, fixed 32 bit encoding, delay slot</td></tr>
+            <tr><td><code>nios2</code></td><td><code>.bin</code></td><td>Altera Nios II, 32 GPRs, custom RISC encoding</td></tr>
+            <tr><td><code>microblaze</code></td><td><code>.bin</code></td><td>Xilinx MicroBlaze, 32 GPRs, fixed 32 bit word aligned</td></tr>
+            <tr><td><code>mico32</code></td><td><code>.bin</code></td><td>Lattice Mico32, 32 GPRs, three operand, fixed 32 bit encoding</td></tr>
+            <tr><td><code>picoblaze</code></td><td><code>.bin</code></td><td>Xilinx PicoBlaze 8 bit, 16 registers, 3 bit ALU, 8 bit address</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Academic and Educational</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>mmix</code></td><td><code>.bin</code></td><td>Knuth MMIX 64 bit, 32 GPRs, 256 special registers, 32 bit instructions</td></tr>
+            <tr><td><code>dlx</code></td><td><code>.bin</code></td><td>Hennessy and Patterson DLX, MIPS derived, 32 GPRs, R/I/J formats</td></tr>
+            <tr><td><code>lc3</code></td><td><code>.bin</code></td><td>LC-3 educational 16 bit, 8 GPRs, TRAP syscalls, condition codes</td></tr>
+          </tbody>
+        </table>
+
+        <h2>8 Bit CPU Classics</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>6502</code></td><td><code>.bin</code></td><td>MOS 6502, accumulator based, zero page, 1 byte opcodes</td></tr>
+            <tr><td><code>z80</code></td><td><code>.bin</code></td><td>Zilog Z80, 8 bit with 16 bit register pairs, IX and IY index registers</td></tr>
+            <tr><td><code>6809</code></td><td><code>.bin</code></td><td>Motorola 6809, two 8 bit accumulators, 16 bit index registers</td></tr>
+            <tr><td><code>m6800</code></td><td><code>.bin</code></td><td>Motorola 6800, accumulators A and B, index X, 16 bit SP</td></tr>
+            <tr><td><code>mos6501</code></td><td><code>.bin</code></td><td>MOS 6501, 6502 predecessor, A/X/Y registers, 6800 pin compatible</td></tr>
+          </tbody>
+        </table>
+
+        <h2>8 Bit Microcontrollers</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>pic</code></td><td><code>.bin</code></td><td>Microchip PIC mid-range, 14 bit instruction words</td></tr>
+            <tr><td><code>avr</code></td><td><code>.bin</code></td><td>Atmel AVR, 32 by 8 bit registers, 16 bit instruction words</td></tr>
+            <tr><td><code>xc800</code></td><td><code>.bin</code></td><td>Infineon XC800 8 bit, 8051 compatible, accumulator A, B register, DPTR</td></tr>
+            <tr><td><code>nec78k</code></td><td><code>.bin</code></td><td>NEC 78K 8 bit, 8 GPRs, accumulator A based</td></tr>
+            <tr><td><code>r8c</code></td><td><code>.bin</code></td><td>Renesas R8C 8 bit, M16C subset, 8 GPRs</td></tr>
+          </tbody>
+        </table>
+
+        <h2>16 Bit Microcontrollers</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>msp430</code></td><td><code>.bin</code></td><td>TI MSP430, 16 GPRs with R0=PC, R1=SP, R2=SR, R3=CG</td></tr>
+            <tr><td><code>c166</code></td><td><code>.bin</code></td><td>Infineon C166, 16 GPRs in banks, bit addressable I/O</td></tr>
+            <tr><td><code>rl78</code></td><td><code>.bin</code></td><td>Renesas RL78, 8 and 16 bit registers, up to 1 MB address space</td></tr>
+            <tr><td><code>h8</code></td><td><code>.bin</code></td><td>Renesas H8, 8 and 16 bit, R0-R7 plus extension registers</td></tr>
+            <tr><td><code>m16c</code></td><td><code>.bin</code></td><td>Renesas M16C, 16 bit, 8 GPRs, bit addressable</td></tr>
+            <tr><td><code>v20</code></td><td><code>.bin</code></td><td>NEC V20/V30, 8080 and 8086 compatible extensions</td></tr>
+          </tbody>
+        </table>
+
+        <h2>32 Bit MCU and RISC</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>rx</code></td><td><code>.bin</code></td><td>Renesas RX, 32 bit, 16 GPRs (R0-R15), 32 bit data paths</td></tr>
+            <tr><td><code>fr</code></td><td><code>.bin</code></td><td>Fujitsu FR 32 bit RISC, 32 GPRs, fixed 32 bit encoding</td></tr>
+            <tr><td><code>v810</code></td><td><code>.bin</code></td><td>NEC V810 32 bit RISC, 32 GPRs, used in Saturn and N64 consoles</td></tr>
+          </tbody>
+        </table>
+
+        <h2>DSPs</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>tms320</code></td><td><code>.bin</code></td><td>TI TMS320C54x, 16 bit fixed point, 8 accumulators, 8 auxiliary registers</td></tr>
+            <tr><td><code>blackfin</code></td><td><code>.bin</code></td><td>ADI Blackfin, 32 bit, 8 register pairs, SIMD, circular buffers</td></tr>
+            <tr><td><code>sharc</code></td><td><code>.bin</code></td><td>ADI SHARC, 32 and 40 bit floating point, 10 ALU plus 10 multiplier registers</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Hitachi, 68k, Console</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>sh2</code></td><td><code>.bin</code></td><td>Hitachi SH-2, 16 bit fixed encoding, 16 GPRs, used in Sega Saturn</td></tr>
+            <tr><td><code>sh4</code></td><td><code>.bin</code></td><td>Hitachi SH-4, SH-2 base plus PR mode, used in Sega Dreamcast</td></tr>
+            <tr><td><code>m68k</code></td><td><code>.bin</code></td><td>Motorola 68000, 16 bit words, 8 data plus 8 address registers, CISC</td></tr>
+            <tr><td><code>huc6280</code></td><td><code>.bin</code></td><td>HuC6280 for PC Engine, 65C02 based, bank switching, 8 I/O ports</td></tr>
+          </tbody>
+        </table>
+
+        <h2>PDP, VAX, HP 3000</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>pdp8</code></td><td><code>.bin</code></td><td>PDP-8 12 bit, 3 bit opcode, indirect bit, 4/5/7 bit address</td></tr>
+            <tr><td><code>pdp11</code></td><td><code>.bin</code></td><td>PDP-11 16 bit, 8 GPRs (R0-R7), orthogonal instruction format</td></tr>
+            <tr><td><code>vax</code></td><td><code>.bin</code></td><td>VAX 32 bit CISC, variable length opcodes, operand specifiers</td></tr>
+            <tr><td><code>hp3000</code></td><td><code>.bin</code></td><td>HP 3000, 16 bit stack based, 8 GPRs, stack operations</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Mainframe</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>s360</code></td><td><code>.bin</code></td><td>IBM System or 360 32 bit, 16 GPRs, RR/RX/RS/SI/SS formats</td></tr>
+            <tr><td><code>zarch</code></td><td><code>.bin</code></td><td>IBM z or Architecture 64 bit, S/360 compatible with 64 bit extensions</td></tr>
+            <tr><td><code>univac</code></td><td><code>.bin</code></td><td>UNIVAC 36 bit, ones complement, 6 bit Fieldata characters</td></tr>
+            <tr><td><code>cdc6600</code></td><td><code>.bin</code></td><td>CDC 6600 60 bit, 8 address plus 8 operand registers, scoreboarding</td></tr>
+          </tbody>
+        </table>
+
+        <h2>VLIW</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>vliw</code></td><td><code>.bin</code></td><td>TI C6x style VLIW, 16 GPRs in A and B split, 4 functional units, up to 8 ops per packet</td></tr>
+            <tr><td><code>elbrus</code></td><td><code>.bin</code></td><td>Elbrus Soviet VLIW, 256 bit bundles with 8 by 32 bit instructions, 32 GPRs</td></tr>
+            <tr><td><code>ia64</code></td><td><code>.bin</code></td><td>Intel Itanium IA-64, 128 bit bundles with 3 by 41 bit instructions, 32 GPRs, 8 predicate registers</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Military and Aerospace</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>mil1750a</code></td><td><code>.bin</code></td><td>MIL-STD-1750A 16 bit, 16 GPRs, two word instructions (32 bit)</td></tr>
+            <tr><td><code>jovial</code></td><td><code>.bin</code></td><td>JOVIAL J73 VM bytecode, 8 bit operations, stack based, 16 GPRs</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Soviet and Exotic</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>ural</code></td><td><code>.bin</code></td><td>Ural-1 35 bit, 6 bit opcode plus 14 bit address, 35 bit word</td></tr>
+            <tr><td><code>besm</code></td><td><code>.bin</code></td><td>BESM-6 48 bit, 6 bit opcode plus two 15 bit addresses</td></tr>
+            <tr><td><code>mir</code></td><td><code>.bin</code></td><td>MIR 45 bit stack machine, three address hardware stack</td></tr>
+            <tr><td><code>harvard</code></td><td><code>.bin</code></td><td>Harvard architecture, separate program and data memory, 16 bit words</td></tr>
+            <tr><td><code>mill</code></td><td><code>.bin</code></td><td>Mill architecture, belt based result forwarding, 32 bit encoding</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Special Purpose</h2>
+        <table>
+          <thead><tr><th>Target</th><th>Output</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr><td><code>vm</code></td><td><code>.vbc</code></td><td>Decretum stack VM, 25+ opcodes, standalone interpreter, 8 byte header magic DECVM01</td></tr>
+            <tr><td><code>ternary</code></td><td><code>.bin</code></td><td>Balanced ternary inspired by Setun, trits -1/0/+1, 4 trits per byte, 8 tryte registers</td></tr>
+            <tr><td><code>quantum8</code></td><td><code>.qbin</code></td><td>Quantum circuit with 8 qubits, 15 gate types, 16 bit fixed point angle encoding</td></tr>
+            <tr><td><code>quantum64</code></td><td><code>.qbin</code> + <code>.qasm</code></td><td>Quantum circuit with 64 qubits, includes circuit optimization and OpenQASM 2.0 export</td></tr>
+            <tr><td><code>portable</code></td><td><code>.dcb</code></td><td>Portable Decretum bytecode, 51 opcodes, 320 bit ARX PRNG, string and math builtins</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Optimization Passes</h2>
+        <p>Every backend runs a peephole optimization pass before final encoding. The pass collapses consecutive NOPs into one, removes dead code after unconditional branches and returns, fills delay slots for MIPS, SPARC, and OpenRISC targets, eliminates SPARC save and restore window pairs, and simplifies PowerPC CR logical operations. A byte level pass then strips trailing filler bytes, deduplicates consecutive filler bytes, and removes trailing zeros after all other passes complete.</p>
+
+      </article>
+    </main>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()">Dark</button>
+  <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}var b=document.querySelector('.theme-toggle');if(b){b.textContent=(t==='dark')?'Light':'Dark';}})();function toggleTheme(){var d=document.documentElement;var c=d.getAttribute('data-theme');var n=(c==='dark')?'light':'dark';d.setAttribute('data-theme',n);localStorage.setItem('theme',n);var b=document.querySelector('.theme-toggle');if(b){b.textContent=(n==='dark')?'Light':'Dark';}}</script>
+</body>
+</html>

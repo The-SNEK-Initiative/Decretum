@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fa">
+  <title>Target Constraints &mdash; Decretum DCRT</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="brand">Decretum DCRT</p>
+      <div class="nav-group"><h3>Start</h3><ul><li><a href="../index.html">Overview</a></li><li><a href="../getting-started/index.html">Getting Started</a></li></ul></div>
+      <div class="nav-group"><h3>Language</h3><ul><li><a href="../language/syntax.html">Syntax</a></li><li><a href="../language/expressions.html">Instruction Model</a></li><li><a href="../language/functions.html">Helpers</a></li></ul></div>
+      <div class="nav-group"><h3>Runtime</h3><ul><li><a href="./execution-model.html">Execution Model</a></li><li><a href="./constraints.html">Target Constraints</a></li><li><a href="./bios-builtins.html">BIOS Builtins</a></li></ul></div>
+      <div class="nav-group"><h3>Compiler</h3><ul><li><a href="../compiler/backends.html">Backends</a></li><li><a href="../compiler/pe-target.html">PE Target</a></li></ul></div>
+      <div class="nav-group"><h3>Tools</h3><ul><li><a href="../tools/ide.html">Decretum IDE</a></li></ul></div>
+      <div class="nav-group"><h3>Examples</h3><ul><li><a href="../examples/full-kernel.html">BIOS Kernel</a></li><li><a href="../examples/compute-pe.html">Compute</a></li><li><a href="../examples/fibonacci.html">Fibonacci</a></li><li><a href="../examples/random.html">Random Numbers</a></li><li><a href="../examples/string-ops.html">String Ops</a></li></ul></div>
+    </aside>
+    <main class="content">
+      <article class="card">
+        <h1>Target Constraints</h1>
+        <p>Decretum supports 84 compiler targets. The syntax stays the same with event and proc blocks, data declarations, and control flow, but each target has its own registers, instruction set, word size, and constraints. You write target specific programs using a shared syntax. This means you can target anything from a 4 bit Intel 4004 to a 64 qubit quantum circuit, but the code itself is still architecture aware.</p>
+        <p>See the <a href="../compiler/backends.html">compiler backends page</a> for the complete list with CLI commands, output formats, and architecture details.</p>
+
+        <h2>Quick Summary by Family (84 total)</h2>
+        <ul>
+          <li><strong>x86:</strong> bios16, uefi, x86_64, win64, win32, elf64, elf32, i8086</li>
+          <li><strong>Intel evolution:</strong> i4004, i8008, i8080</li>
+          <li><strong>ARM:</strong> armcm, arm7tdmi, arm9, aarch64, macho, cheri</li>
+          <li><strong>RISC-V:</strong> riscv, riscv64, riscv_cheri</li>
+          <li><strong>Classic RISC:</strong> mips, ppc, ppc740, ppc970, sparc, alpha, parisc</li>
+          <li><strong>FPGA soft core:</strong> openrisc, nios2, microblaze, mico32, picoblaze</li>
+          <li><strong>Academic:</strong> mmix, dlx, lc3</li>
+          <li><strong>8 bit classic:</strong> 6502, z80, 6809, m6800, mos6501</li>
+          <li><strong>8 bit MCU:</strong> pic, avr, xc800, nec78k, r8c</li>
+          <li><strong>16 bit MCU:</strong> msp430, c166, rl78, h8, m16c, v20</li>
+          <li><strong>32 bit MCU or RISC:</strong> rx, fr, v810</li>
+          <li><strong>DSP:</strong> tms320, blackfin, sharc</li>
+          <li><strong>Hitachi, 68k, Console:</strong> sh2, sh4, m68k, huc6280</li>
+          <li><strong>PDP, VAX, HP:</strong> pdp8, pdp11, vax, hp3000</li>
+          <li><strong>Mainframe and Vintage:</strong> s360, zarch, univac, cdc6600</li>
+          <li><strong>VLIW:</strong> vliw (TI C6x style), elbrus, ia64 (Itanium)</li>
+          <li><strong>Military and Aerospace:</strong> mil1750a, jovial (J73 VM bytecode)</li>
+          <li><strong>VM and Special:</strong> portable, vm, ternary, quantum8, quantum64</li>
+          <li><strong>Soviet and Exotic:</strong> ural, besm, mir, harvard, mill</li>
+        </ul>
+
+        <h2>bios16</h2>
+        <p>Uses direct 16 bit machine encoding and BIOS interrupt services. Limited to 1 MB address space with real mode segment and offset addressing. Use BIOS helpers (<code>builtin.*</code>) for text output, keyboard input, cursor control, disk I/O, and boot level routines. Output is a 512 byte boot sector with a CHS disk loader that reads a stage2 kernel payload from disk.</p>
+
+        <h2>Portable and win64 Path</h2>
+        <p>Compiles to Decretum bytecode and executes through the Rust runtime engine. The runtime supports 51 opcodes, 16 registers, string operations, file I/O, and the DCRNG random generator. The <code>compile-pe</code> command wraps bytecode into a native PE executable with an embedded runtime stub. No NASM or external assembler is required.</p>
+
+        <h2>Direct Machine Code Path</h2>
+        <p>Each architecture backend generates raw machine code for its target. The code runs directly on the hardware. Some targets impose specific constraints: MIPS and SPARC have delay slots after branches. ARM Cortex-M requires a vector table at address 0x0000. The 8 bit backends have limited register sets and address spaces. The quantum backends produce circuit descriptions rather than machine code. Every backend runs a peephole optimization pass before encoding.</p>
+
+        <h2>Language Level Control Flow</h2>
+        <p>All targets support <code>if</code>, <code>else</code>, <code>endif</code>, <code>while</code>, and <code>endwhile</code> constructs. These compile to native compare and jump sequences at the source level before reaching the backend. Nested constructs are supported.</p>
+      </article>
+    </main>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()">Dark</button>
+  <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}var b=document.querySelector('.theme-toggle');if(b){b.textContent=(t==='dark')?'Light':'Dark';}})();function toggleTheme(){var d=document.documentElement;var c=d.getAttribute('data-theme');var n=(c==='dark')?'light':'dark';d.setAttribute('data-theme',n);localStorage.setItem('theme',n);var b=document.querySelector('.theme-toggle');if(b){b.textContent=(n==='dark')?'Light':'Dark';}}</script>
+</body>
+</html>

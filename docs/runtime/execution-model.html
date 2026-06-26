@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Execution Model &mdash; Decretum DCRT</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="brand">Decretum DCRT</p>
+      <div class="nav-group"><h3>Start</h3><ul><li><a href="../index.html">Overview</a></li><li><a href="../getting-started/index.html">Getting Started</a></li></ul></div>
+      <div class="nav-group"><h3>Language</h3><ul><li><a href="../language/syntax.html">Syntax</a></li><li><a href="../language/expressions.html">Instruction Model</a></li><li><a href="../language/functions.html">Helpers</a></li></ul></div>
+      <div class="nav-group"><h3>Runtime</h3><ul><li><a href="./execution-model.html">Execution Model</a></li><li><a href="./constraints.html">Target Constraints</a></li><li><a href="./bios-builtins.html">BIOS Builtins</a></li></ul></div>
+      <div class="nav-group"><h3>Compiler</h3><ul><li><a href="../compiler/backends.html">Backends</a></li><li><a href="../compiler/pe-target.html">PE Target</a></li></ul></div>
+      <div class="nav-group"><h3>Tools</h3><ul><li><a href="../tools/ide.html">Decretum IDE</a></li></ul></div>
+      <div class="nav-group"><h3>Examples</h3><ul><li><a href="../examples/full-kernel.html">BIOS Kernel</a></li><li><a href="../examples/compute-pe.html">Compute</a></li><li><a href="../examples/fibonacci.html">Fibonacci</a></li><li><a href="../examples/random.html">Random Numbers</a></li><li><a href="../examples/string-ops.html">String Ops</a></li></ul></div>
+    </aside>
+    <main class="content">
+      <article class="card">
+        <h1>Execution Model</h1>
+        <p>Decretum has three execution paths that share the same parser and produce the same event driven control flow model.</p>
+
+        <h2>Compilation Pipeline</h2>
+        <ol>
+          <li>Parse source into a <code>Program</code> structure with target, entry event, data declarations, and code blocks.</li>
+          <li>Pass the parsed program to the target specific backend.</li>
+          <li><strong>bios16 path:</strong> Encode directly to 16 bit x86 machine code. Generate a 512 byte boot sector with CHS disk loader and a stage2 kernel payload.</li>
+          <li><strong>portable or win64 path:</strong> Compile to a 51 opcode bytecode format. Optionally wrap the bytecode in a PE executable with a runtime stub.</li>
+          <li><strong>Direct machine code path:</strong> Each backend is a full two pass assembler. Pass one lowers instructions to binary. Pass two resolves labels and writes the output format.</li>
+        </ol>
+
+        <h2>Event Driven Flow</h2>
+        <p>Event dispatch is explicit through <code>emit</code>, which fires a named event and transfers control. Procedure calls are explicit through <code>call</code> and return with <code>ret</code>. The <code>entry</code> directive specifies which event runs at program startup. Events can call procedures, emit other events, or use control flow constructs for branching and looping.</p>
+
+        <h2>Portable Bytecode Runtime</h2>
+        <p>The portable runtime is a register based virtual machine implemented in <code>src/portable.rs</code>. It maintains:</p>
+        <ul>
+          <li>16 general purpose 64 bit registers</li>
+          <li>A memory map associating string names with 64 bit integer values</li>
+          <li>A string storage map for dynamic string variables</li>
+          <li>A frame stack for call and return tracking</li>
+          <li>Signed and unsigned comparison flags for conditional jumps</li>
+          <li>A 50 million instruction execution guard to prevent infinite loops</li>
+        </ul>
+
+        <h3>DCRNG Random Generator</h3>
+        <p>The runtime includes a custom 320 bit ARX PRNG called DCRNG. It maintains a 320 bit state across 5 internal 64 bit words and uses a 2 round ARX construction with rotation constants 29, 17, 11, 7, 23, 19, 13, and 5. A Weyl sequence extends the period beyond 2^320. The generator supports raw 64 bit output, bounded ranges, and is used by the <code>random</code> and <code>random_range</code> operations.</p>
+
+        <h3>Bytecode Format</h3>
+        <p>Bytecode files use the <code>.dcb</code> format with the following structure:</p>
+        <pre><code>Magic: "DCB2" (4 bytes)
+Version: 2 (2 bytes, little endian)
+Entry event name: length-prefixed string
+Integer data count: u32, then name-value pairs
+String data count: u32, then name-string pairs
+Block count: u32, then for each block:
+  kind (u8: 0=event, 1=proc)
+  name (length-prefixed string)
+  opcode count (u32)
+  encoded opcode stream</code></pre>
+        <p>Opcodes are variable length. Each opcode starts with a single byte identifying the operation, followed by operands encoded as type-tagged values. The runtime decodes opcodes sequentially and dispatches to the appropriate handler.</p>
+
+        <h2>Direct Machine Code Execution</h2>
+        <p>Direct machine code backends produce native binaries for the target architecture. These run directly on the hardware, in an emulator, or within a hypervisor. The BIOS16 backend produces a bootable disk image for x86 real mode. The UEFI backend produces a PE32+ image for UEFI firmware. Other backends produce raw binaries for flashing, loading, or linking.</p>
+      </article>
+    </main>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()">Dark</button>
+  <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}var b=document.querySelector('.theme-toggle');if(b){b.textContent=(t==='dark')?'Light':'Dark';}})();function toggleTheme(){var d=document.documentElement;var c=d.getAttribute('data-theme');var n=(c==='dark')?'light':'dark';d.setAttribute('data-theme',n);localStorage.setItem('theme',n);var b=document.querySelector('.theme-toggle');if(b){b.textContent=(n==='dark')?'Light':'Dark';}}</script>
+</body>
+</html>
