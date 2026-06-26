@@ -67,7 +67,7 @@ Everything ranging from 4 bit microprocessors to 64 qubit quantum circuits:
 Decretum source files use the `.dcrt` extension. The compiler parses source into a `Program` structure with events, procedures, and data declarations. Two compilation paths exist:
 
 * **Portable bytecode** compiles to `.dcb` files executed by the built in `BytecodeRuntime` interpreter. This path supports Windows PE `.exe` output with embedded bytecode and a runtime stub.
-* **Direct machine code** compiles to raw binary, bootable images, ELF, Mach-O, UEFI, or PE for any of the 84 target architectures. Each backend is a full two pass assembler with its own instruction encoding, register model, and output format.
+* **Direct machine code** compiles to raw binary, bootable images, ELF, Mach-O, UEFI, or PE for any of the 84 target architectures. Each backend has its own instruction encoding, register model, and output format; some use a two pass assembly model with label resolution, while others use a single pass model with in place branch patching. All backends support high level `if`/`elif`/`else`/`endif`/`while`/`endwhile` control flow constructs.
 
 Every backend runs a peephole optimization pass that collapses NOPs, removes dead code after branches, fills delay slots on MIPS and SPARC, eliminates SPARC save/restore window pairs, and simplifies PowerPC CR logicals. A byte level pass strips trailing filler bytes.
 
