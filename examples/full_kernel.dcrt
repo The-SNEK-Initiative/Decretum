@@ -1,0 +1,139 @@
+target bios16
+entry boot
+
+data banner = "SNEK Decretum Core Kernel\0"
+data subtitle = "pure bare-metal event loop\0"
+data menu = "1=status  2=diag  3=beep  4=help  5=reboot  0=halt\0"
+data prompt = "key> \0"
+data status_msg = "ticks=\0"
+data mem_msg = "mem_kb=\0"
+data cursor_msg = "cursor(dx)=0x\0"
+data copy_msg = "copy_buf=\0"
+data unknown_msg = "unknown key\0"
+data reboot_msg = "rebooting...\0"
+data halted_msg = "halted.\0"
+data copy_seed = "decretum-core\0"
+
+word ticks = 0
+word mem_kb = 0
+buffer copy_buf 32
+
+event boot:
+    builtin.set_video_mode 0x03
+    builtin.clear_screen
+    builtin.set_text_attr 0x0A
+    builtin.print banner
+    builtin.newline
+    builtin.set_text_attr 0x07
+    builtin.print subtitle
+    builtin.newline
+    builtin.get_mem_kb
+    mov [mem_kb], ax
+    builtin.memset copy_buf, 0, 32
+    builtin.memcpy copy_buf, copy_seed, 13
+    emit print_help
+    emit main_loop
+    ret
+
+event print_help:
+    builtin.print menu
+    builtin.newline
+    builtin.newline
+    ret
+
+event main_loop:
+.loop_start:
+    mov ax, [ticks]
+    add ax, 1
+    mov [ticks], ax
+
+    builtin.print prompt
+    builtin.wait_key
+    mov bx, ax
+    test ax, ax
+    jz .unknown
+
+    cmp ax, 0x0231
+    je .show_status
+    cmp ax, 0x0332
+    je .show_diag
+    cmp ax, 0x0433
+    je .beep
+    cmp ax, 0x0534
+    je .show_help
+    cmp ax, 0x0635
+    je .reboot
+    cmp ax, 0x0B30
+    je .halt
+    jmp .unknown
+
+.show_status:
+    emit status
+    jmp .loop_start
+
+.show_diag:
+    emit diagnostics
+    jmp .loop_start
+
+.beep:
+    builtin.beep
+    builtin.newline
+    jmp .loop_start
+
+.show_help:
+    emit print_help
+    jmp .loop_start
+
+.reboot:
+    emit reboot_now
+    jmp .loop_start
+
+.halt:
+    emit shutdown
+    jmp .loop_start
+
+.unknown:
+    emit unknown
+    jmp .loop_start
+
+event status:
+    builtin.print status_msg
+    mov ax, [ticks]
+    builtin.print_u16 ax
+    builtin.newline
+
+    builtin.print mem_msg
+    mov ax, [mem_kb]
+    builtin.print_u16 ax
+    builtin.newline
+
+    builtin.print copy_msg
+    builtin.print copy_buf
+    builtin.newline
+    ret
+
+event diagnostics:
+    builtin.get_cursor
+    builtin.print cursor_msg
+    builtin.print_hex16 dx
+    builtin.newline
+    ret
+
+event unknown:
+    builtin.print unknown_msg
+    builtin.newline
+    ret
+
+event reboot_now:
+    builtin.print reboot_msg
+    builtin.newline
+    builtin.reboot
+    ret
+
+event shutdown:
+    builtin.print halted_msg
+    builtin.newline
+    cli
+.halt_forever:
+    hlt
+    jmp .halt_forever

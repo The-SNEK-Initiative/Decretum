@@ -1,0 +1,6 @@
+target portable
+entry main
+
+event main:
+    print "Hello from Decretum!\n"
+    exit 0

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>String Ops Example &mdash; Decretum DCRT</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="brand">Decretum DCRT</p>
+      <div class="nav-group"><h3>Start</h3><ul><li><a href="../index.html">Overview</a></li><li><a href="../getting-started/index.html">Getting Started</a></li></ul></div>
+      <div class="nav-group"><h3>Language</h3><ul><li><a href="../language/syntax.html">Syntax</a></li><li><a href="../language/expressions.html">Instruction Model</a></li><li><a href="../language/functions.html">Helpers</a></li></ul></div>
+      <div class="nav-group"><h3>Runtime</h3><ul><li><a href="../runtime/execution-model.html">Execution Model</a></li><li><a href="../runtime/constraints.html">Target Constraints</a></li><li><a href="../runtime/bios-builtins.html">BIOS Builtins</a></li></ul></div>
+      <div class="nav-group"><h3>Compiler</h3><ul><li><a href="../compiler/backends.html">Backends</a></li><li><a href="../compiler/pe-target.html">PE Target</a></li></ul></div>
+      <div class="nav-group"><h3>Tools</h3><ul><li><a href="../tools/ide.html">Decretum IDE</a></li></ul></div>
+      <div class="nav-group"><h3>Examples</h3><ul><li><a href="./full-kernel.html">BIOS Kernel</a></li><li><a href="./compute-pe.html">Compute</a></li><li><a href="./fibonacci.html">Fibonacci</a></li><li><a href="./random.html">Random Numbers</a></li><li><a href="./string-ops.html">String Ops</a></li></ul></div>
+    </aside>
+    <main class="content">
+      <article class="card">
+        <h1>String Ops Example</h1>
+
+        <p>Source file: <code>.github/examples/string_ops.dcrt</code></p>
+        <p>This portable bytecode program demonstrates the string manipulation operations available in Decretum. It concatenates strings, measures length, finds substrings, and converts integers to strings using the portable bytecode runtime's string subsystem.</p>
+
+        <h2>Features Demonstrated</h2>
+        <ul>
+          <li><code>str_alloc</code> for buffer allocation</li>
+          <li><code>str_cat</code> for string concatenation</li>
+          <li><code>str_len</code> for length measurement</li>
+          <li><code>str_find</code> for substring search</li>
+          <li><code>int_to_str</code> for integer formatting</li>
+          <li><code>print_data</code> for buffer output</li>
+          <li>Portable bytecode string subsystem</li>
+        </ul>
+
+        <h2>Build</h2>
+        <pre><code>cargo run -- compile-bytecode .github/examples/string_ops.dcrt --out-file build/string_ops.dcb</code></pre>
+        <p>The output is a <code>.dcb</code> bytecode file that can be run through the IDE or compiled to a PE executable.</p>
+      </article>
+    </main>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()">Dark</button>
+  <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}var b=document.querySelector('.theme-toggle');if(b){b.textContent=(t==='dark')?'Light':'Dark';}})();function toggleTheme(){var d=document.documentElement;var c=d.getAttribute('data-theme');var n=(c==='dark')?'light':'dark';d.setAttribute('data-theme',n);localStorage.setItem('theme',n);var b=document.querySelector('.theme-toggle');if(b){b.textContent=(n==='dark')?'Light':'Dark';}}</script>
+</body>
+</html>

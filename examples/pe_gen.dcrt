@@ -1,0 +1,145 @@
+target bios16
+entry pe_start
+
+data banner = "Decretum PE Header Generator v0.1\0"
+data out_msg = "Generating 64-bit Windows PE layout...\0"
+
+event pe_start:
+    builtin.clear_screen
+    builtin.print banner
+    builtin.newline
+    builtin.print out_msg
+    builtin.newline
+    
+    call generate_pe
+    
+    builtin.newline
+    builtin.halt
+    ret
+
+proc generate_pe:
+    ; 1. MZ Header
+    mov ax, 0x5A4D ; 'MZ'
+    call print_word
+    mov cx, 29
+    call print_zeros
+    mov ax, 0x0040 ; PE offset
+    call print_word
+    mov cx, 1
+    call print_zeros
+    
+    ; 2. PE Signature
+    mov ax, 0x4550 ; 'PE'
+    call print_word
+    mov ax, 0x0000
+    call print_word
+    
+    ; 3. COFF Header
+    mov ax, 0x8664 ; x86-64
+    call print_word
+    mov ax, 0x0001 ; 1 Section
+    call print_word
+    mov cx, 6
+    call print_zeros
+    mov ax, 0x00F0 ; Optional Header size
+    call print_word
+    mov ax, 0x0022 ; Characteristics
+    call print_word
+    
+    ; 4. Optional Header
+    mov ax, 0x020B ; PE32+
+    call print_word
+    mov ax, 0x0000 ; Linker version
+    call print_word
+    mov ax, 0x0200 ; Code size
+    call print_word
+    mov cx, 4
+    call print_zeros
+    mov ax, 0x1000 ; Entry point RVA
+    call print_word
+    mov ax, 0x1000 ; Base of code
+    call print_word
+    
+    ; 5. Windows Fields
+    mov ax, 0x0000 ; Image base low
+    call print_word
+    mov ax, 0x0040 ; Image base high
+    call print_word
+    mov ax, 0x1000 ; Section alignment
+    call print_word
+    mov ax, 0x0200 ; File alignment
+    call print_word
+    mov cx, 8
+    call print_zeros
+    mov ax, 0x2000 ; Size of image
+    call print_word
+    mov ax, 0x0400 ; Size of headers
+    call print_word
+    mov cx, 2
+    call print_zeros
+    mov ax, 0x0003 ; Subsystem (Console)
+    call print_word
+    mov cx, 23
+    call print_zeros
+    mov ax, 0x0010 ; Number of directories
+    call print_word
+    
+    ; 6. Data Directories (16 entries of 8 bytes each)
+    mov cx, 64
+    call print_zeros
+    
+    ; 7. Section Header (.text)
+    mov ax, 0x742E ; '.t'
+    call print_word
+    mov ax, 0x7865 ; 'ex'
+    call print_word
+    mov ax, 0x0074 ; 't\0'
+    call print_word
+    mov cx, 1
+    call print_zeros
+    mov ax, 0x0200 ; Virtual size
+    call print_word
+    mov ax, 0x1000 ; Virtual address
+    call print_word
+    mov ax, 0x0200 ; Raw size
+    call print_word
+    mov ax, 0x0400 ; Raw address
+    call print_word
+    mov cx, 6
+    call print_zeros
+    mov ax, 0x6000 ; Characteristics
+    call print_word
+    
+    ; 8. Machine Code Payload (64-bit jmp $)
+    mov ax, 0xFEEB
+    call print_word
+    ret
+
+proc print_word:
+    ; Input: AX = word
+    mov bx, 256
+    mov dx, 0
+    div bx
+    
+    mov cx, ax
+    mov ax, dx
+    builtin.print_hex16 ax
+    builtin.print_char 0x20
+    builtin.print_hex16 cx
+    builtin.print_char 0x20
+    ret
+
+proc print_zeros:
+    ; Input: CX = number of zero words to print
+.loop:
+    cmp cx, 0
+    je .done
+    mov ax, 0
+    builtin.print_hex16 ax
+    builtin.print_char 0x20
+    builtin.print_hex16 ax
+    builtin.print_char 0x20
+    dec cx
+    jmp .loop
+.done:
+    ret

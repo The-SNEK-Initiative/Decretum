@@ -1,0 +1,13 @@
+target aarch64
+entry run
+
+; Triangular number via while loop
+event run:
+    mov x0, 5
+    mov x1, 0
+while x0
+    add x1, x1, x0
+    sub x0, x0, 1
+endwhile
+    ; x1 = 15
+    ret

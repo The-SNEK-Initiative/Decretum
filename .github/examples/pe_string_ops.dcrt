@@ -1,0 +1,30 @@
+target portable
+entry main
+
+data greeting = "hello"
+data world = " world"
+buffer output 32
+
+event main:
+    str_alloc output, 32
+    str_cat output, greeting, world
+    print "concatenated: "
+    print_data output
+    println
+
+    str_len output, rax
+    print "length: "
+    print_u64 rax
+    println
+
+    str_find output, "world", rax
+    print "find 'world' at index: "
+    print_u64 rax
+    println
+
+    int_to_str output, 42
+    print "42 as string: "
+    print_data output
+    println
+
+    exit 0

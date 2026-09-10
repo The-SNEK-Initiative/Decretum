@@ -1,0 +1,119 @@
+target portable
+entry run
+
+qword x = 0
+qword y = 0
+qword z = 0
+
+event run:
+    print "1. if/else:\n"
+    mov x, 5
+    if x
+    print "   truthy\n"
+    else
+    print "   WRONG\n"
+    endif
+
+    mov x, 0
+    if x
+    print "   WRONG\n"
+    else
+    print "   falsy\n"
+    endif
+
+    print "2. if/elif/else:\n"
+    mov x, 0
+    mov y, 7
+    if x
+    print "   WRONG\n"
+    elif y
+    print "   elif taken\n"
+    else
+    print "   WRONG\n"
+    endif
+
+    mov x, 0
+    mov y, 0
+    if x
+    print "   WRONG\n"
+    elif y
+    print "   WRONG\n"
+    else
+    print "   else taken\n"
+    endif
+
+    print "3. if (no else):\n"
+    mov x, 1
+    if x
+    print "   runs\n"
+    endif
+    print "   always\n"
+
+    print "4. while:\n"
+    mov x, 5
+    mov y, 0
+    while x
+    add y, x
+    dec x
+    endwhile
+    print "   sum 1..5 = "
+    print_u64 y
+    println
+    if y
+    print "   non-zero result\n"
+    endif
+
+    print "5. factorial:\n"
+    mov x, 5
+    mov y, 1
+    while x
+    mul y, x
+    dec x
+    endwhile
+    print "   5! = "
+    print_u64 y
+    println
+
+    print "6. nested if/while:\n"
+    mov x, 3
+    while x
+    if x
+    print "   x="
+    print_u64 x
+    println
+    endif
+    dec x
+    endwhile
+
+    print "7. nested if/elif/else:\n"
+    mov x, 10
+    mov y, 20
+    mov z, 30
+    if x
+    if y
+    print "   both x and y\n"
+    elif z
+    print "   x and z\n"
+    else
+    print "   x only\n"
+    endif
+    else
+    print "   neither\n"
+    endif
+
+    print "8. while with if break:\n"
+    mov x, 10
+    mov y, 0
+    while x
+    add y, x
+    if y
+    ; just checking it compiles
+    endif
+    dec x
+    endwhile
+    print "   sum 1..10 = "
+    print_u64 y
+    println
+
+    print "done.\n"
+    exit 0

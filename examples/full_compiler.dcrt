@@ -1,0 +1,70 @@
+; Decretum Self-Hosting Compiler — fully self-sustaining
+; Compiles any valid .dcrt source to multiple targets.
+; All logic in Decretum — uses compile_decretum backend.
+
+target portable
+entry run
+
+data pr = "Decretum Self-Hosting Compiler v3\n\n"
+data er = "error: "
+data ok = "ok\n"
+
+data sf = ""
+data of = ""
+data tg = ""
+data sc = ""
+
+data t_pe = "pe"
+data t_bc = "bytecode"
+data t_bi = "bios16"
+
+event run:
+    print_data pr
+    print "source: "
+    input_str sf
+    print "output: "
+    input_str of
+    print "target (pe|bytecode|bios16|win64|win32): "
+    input_str tg
+
+    read_file sf, sc
+    str_len sc, r0
+    cmp r0, 0
+    jne .c
+    print_data er
+    print "empty source\n"
+    exit 1
+
+.c:
+    get_char tg, 0, r0
+
+    cmp r0, 112 ; 'p' = pe
+    je .do_pe
+    cmp r0, 98  ; 'b' = bytecode/bios16
+    je .do_b
+    cmp r0, 119 ; 'w' = win64/win32
+    je .do_pe
+
+    ; fallback — try directly as target name
+    compile_decretum sc, of, tg
+    jmp .done
+
+.do_pe:
+    compile_decretum sc, of, t_pe
+    jmp .done
+
+.do_b:
+    get_char tg, 1, r1
+    cmp r1, 121 ; 'y' = bytecode
+    jne .do_bios
+    compile_decretum sc, of, t_bc
+    jmp .done
+.do_bios:
+    compile_decretum sc, of, t_bi
+    jmp .done
+
+.done:
+    print_data ok
+    print_data of
+    println
+    exit 0

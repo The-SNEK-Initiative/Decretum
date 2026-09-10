@@ -1,0 +1,13 @@
+target x86_64
+entry run
+
+; Triangular number via while loop
+event run:
+    mov rax, 5
+    mov rbx, 0
+while rax
+    add rbx, rax
+    dec rax
+endwhile
+    ; rbx = 15
+    ret

@@ -1,0 +1,35 @@
+target bios16
+entry boot
+
+data banner = "Decretum bios16 compute demo\0"
+data result_msg = "factorial(8)=\0"
+data wait_msg = "press any key...\0"
+
+event boot:
+    builtin.clear_screen
+    builtin.print banner
+    builtin.newline
+    mov ax, 8
+    call factorial
+    builtin.print result_msg
+    builtin.print_u16 ax
+    builtin.newline
+    builtin.print wait_msg
+    builtin.newline
+    builtin.wait_key
+    cli
+.halt:
+    hlt
+    jmp .halt
+
+proc factorial:
+    mov cx, ax
+    mov ax, 1
+.loop:
+    cmp cx, 1
+    jbe .done
+    mul cx
+    dec cx
+    jmp .loop
+.done:
+    ret

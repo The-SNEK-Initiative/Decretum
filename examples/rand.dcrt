@@ -1,0 +1,67 @@
+target portable
+entry start
+
+data msg_title = "Decretum Random Generator (DCRNG)\n"
+data msg_sep = "--------------------\n"
+data msg_raw = "Raw 64-bit: "
+data msg_bounded = "0-999999: "
+data msg_dice = "Dice (1-6): "
+data msg_five = "5 outputs: "
+
+qword val = 0
+
+proc dice_roll:
+    random [val]
+    mov rax, [val]
+    and rax, 0x7FFFFFFFFFFFFFFF
+    mod rax, 6
+    inc rax
+    mov [val], rax
+    print_u64 [val]
+    ret
+
+proc bounded:
+    random [val]
+    mov rax, [val]
+    and rax, 0x7FFFFFFFFFFFFFFF
+    mod rax, 1000000
+    mov [val], rax
+    print_u64 [val]
+    ret
+
+event start:
+    print_data msg_title
+    print_data msg_sep
+
+    ; Raw 64-bit
+    print_data msg_raw
+    random [val]
+    print_u64 [val]
+    println
+
+    ; Bounded 0-999999
+    print_data msg_bounded
+    call bounded
+    println
+
+    ; Dice roll 1-6
+    print_data msg_dice
+    call dice_roll
+    println
+
+    ; Five outputs in sequence
+    print_data msg_five
+    call bounded
+    print " "
+    call bounded
+    print " "
+    call bounded
+    print " "
+    call bounded
+    print " "
+    call bounded
+    println
+
+    print_data msg_sep
+    wait_input
+    exit 0

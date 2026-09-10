@@ -1,0 +1,37 @@
+target z80
+entry main
+
+data results = [0, 0, 0, 0, 0, 0, 0, 0]
+
+event main:
+    ld a, 1        ; a = 1 (current power)
+    ld b, 0        ; b = 0 (loop counter)
+loop:
+    ld c, 8        ; c = 8 (max iterations)
+    ld a, b
+    cp c
+    jp z, done     ; if counter == 8, exit
+    ; compute 2^counter
+    ld a, 1        ; start with 1
+    ld c, b
+    cp c
+    jp z, store    ; if exponent == 0, power = 1
+    ; multiply a by 2, exponent times
+    ld a, 2        ; start with 2
+    ld c, b
+    dec c          ; loop exponent-1 times
+mul_loop:
+    cp c
+    jp z, store    ; when c == 0, done multiplying
+    ld d, a
+    add a, d       ; a = a * 2
+    dec c
+    jp mul_loop
+store:
+    ; store power to results[b]
+    ; Z80 has limited indexing, store sequentially in memory
+    nop
+    inc b
+    jp loop
+done:
+    ret

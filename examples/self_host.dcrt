@@ -1,0 +1,151 @@
+target bios16
+entry compiler_start
+
+data banner = "Decretum Full Self-Hosting Compiler v0.2\0"
+data src_str = "mov ax, 5\nadd ax, 12\nsub ax, 3\0"
+data out_msg = "Assembling code string...\0"
+
+event compiler_start:
+    builtin.clear_screen
+    builtin.print banner
+    builtin.newline
+    
+    builtin.print out_msg
+    builtin.newline
+    
+    mov ax, src_str
+    mov si, ax
+    call parse_loop
+    
+    builtin.newline
+    builtin.halt
+    ret
+
+proc parse_loop:
+.loop:
+    call skip_whitespace
+    lodsb
+    mov ah, 0
+    cmp ax, 0
+    je .eof
+    
+    cmp ax, 0x6D ; 'm'
+    je .parse_mov
+    cmp ax, 0x61 ; 'a'
+    je .parse_add
+    cmp ax, 0x73 ; 's'
+    je .parse_sub
+    
+    jmp .loop
+
+.parse_mov:
+    lodsb ; 'o'
+    lodsb ; 'v'
+    call skip_whitespace
+    lodsb ; 'a'
+    lodsb ; 'x'
+    lodsb ; ','
+    call skip_whitespace
+    call parse_number
+    
+    ; mov ax, imm16 -> 0xB8 <low> <high>
+    mov bx, 0xB8
+    builtin.print_hex16 bx
+    builtin.print_char 0x20
+    call emit_word
+    builtin.newline
+    jmp .loop
+
+.parse_add:
+    lodsb ; 'd'
+    lodsb ; 'd'
+    call skip_whitespace
+    lodsb ; 'a'
+    lodsb ; 'x'
+    lodsb ; ','
+    call skip_whitespace
+    call parse_number
+    
+    ; add ax, imm16 -> 0x05 <low> <high>
+    mov bx, 0x05
+    builtin.print_hex16 bx
+    builtin.print_char 0x20
+    call emit_word
+    builtin.newline
+    jmp .loop
+
+.parse_sub:
+    lodsb ; 'u'
+    lodsb ; 'b'
+    call skip_whitespace
+    lodsb ; 'a'
+    lodsb ; 'x'
+    lodsb ; ','
+    call skip_whitespace
+    call parse_number
+    
+    ; sub ax, imm16 -> 0x2D <low> <high>
+    mov bx, 0x2D
+    builtin.print_hex16 bx
+    builtin.print_char 0x20
+    call emit_word
+    builtin.newline
+    jmp .loop
+
+.eof:
+    ret
+
+proc skip_whitespace:
+.ws_loop:
+    lodsb
+    mov ah, 0
+    cmp ax, 0x20
+    je .ws_loop
+    cmp ax, 10
+    je .ws_loop
+    cmp ax, 13
+    je .ws_loop
+    
+    dec si
+    ret
+
+proc parse_number:
+    mov dx, 0
+.digit_loop:
+    lodsb
+    mov ah, 0
+    cmp ax, 0x30
+    jb .done
+    cmp ax, 0x39
+    ja .done
+    
+    sub ax, 0x30
+    mov cx, ax
+    
+    mov ax, dx
+    mov bx, 10
+    mul bx
+    add ax, cx
+    mov dx, ax
+    
+    jmp .digit_loop
+.done:
+    dec si
+    mov ax, dx
+    ret
+
+proc emit_word:
+    ; Input AX = word
+    mov bx, 256
+    mov dx, 0
+    div bx
+    
+    ; DX is low, AX is high
+    mov cx, ax
+    mov ax, dx
+    
+    builtin.print_hex16 ax
+    builtin.print_char 0x20
+    builtin.print_hex16 cx
+    builtin.print_char 0x20
+    ret

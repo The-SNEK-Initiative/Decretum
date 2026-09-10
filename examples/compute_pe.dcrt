@@ -1,0 +1,29 @@
+target portable
+entry start
+
+qword n = 15
+qword result = 0
+
+event start:
+    print "Computing factorial(12): "
+    mov rax, [n]
+    call factorial
+    mov [result], rax
+    print_u64 [result]
+    println
+    print "Press Enter to close..."
+    println
+    wait_input
+    exit 0
+
+proc factorial:
+    mov rcx, rax
+    mov rax, 1
+.loop:
+    cmp rcx, 1
+    jbe .done
+    imul rax, rcx
+    dec rcx
+    jmp .loop
+.done:
+    ret

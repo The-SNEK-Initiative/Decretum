@@ -1,0 +1,7 @@
+target quantum8
+entry main
+event main:
+    h q0
+    cx q0, q1
+    measure q0, c0
+    ret

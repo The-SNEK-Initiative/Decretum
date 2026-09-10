@@ -1,0 +1,14 @@
+target riscv64
+entry main
+
+; Factorial 5 via while + mul
+event main:
+    addi x10, x0, 5
+    addi x11, x0, 1
+while x10
+    mul x11, x11, x10
+    addi x10, x10, -1
+endwhile
+    ; x11 = 120 (5!)
+    mv x10, x11
+    ret

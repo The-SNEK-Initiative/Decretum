@@ -1,0 +1,19 @@
+target armcm
+entry main
+
+; Factorial via while loop, result in r5
+event main:
+    mov r4, 5
+    mov r5, 1
+while r4
+    mov r6, r4
+    mov r7, 0
+while r6
+    add r7, r7, r5
+    sub r6, r6, 1
+endwhile
+    mov r5, r7
+    sub r4, r4, 1
+endwhile
+    ; r5 = 120 (5!)
+    wfi

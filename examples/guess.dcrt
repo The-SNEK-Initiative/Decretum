@@ -1,0 +1,44 @@
+target portable
+entry start
+
+data msg_welcome = "Welcome to the Number Guessing Game!\n"
+data msg_prompt = "Enter your guess (1-100): "
+data msg_too_low = "Too low! Try again.\n"
+data msg_too_high = "Too high! Try again.\n"
+data msg_correct = "Congratulations! You guessed it in "
+data msg_attempts = " attempts.\n"
+data msg_exit = "Press Enter to exit..."
+
+qword secret = 42
+qword guess = 0
+qword attempts = 0
+
+event start:
+    print_data msg_welcome
+
+.loop:
+    inc [attempts]
+    print_data msg_prompt
+    input guess
+
+    mov rax, [guess]
+    cmp rax, [secret]
+    je .correct
+    jl .too_low
+
+.too_high:
+    print_data msg_too_high
+    jmp .loop
+
+.too_low:
+    print_data msg_too_low
+    jmp .loop
+
+.correct:
+    print_data msg_correct
+    print_u64 [attempts]
+    print_data msg_attempts
+    print_data msg_exit
+    println
+    wait_input
+    exit 0

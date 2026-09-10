@@ -1,0 +1,8 @@
+target 6502
+entry main
+
+event main:
+    lda a, 65
+    ldx x, 2
+    nop
+    ret

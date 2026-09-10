@@ -1,0 +1,338 @@
+target portable
+entry run
+
+; Snake game for Decretum — console-based
+; WASD controls, 16x16 grid, 10 max length
+
+data clear_seq = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+data wall_h = "##############\n"
+data wall_s = "#"
+data wall_e = "#\n"
+
+data game_over_msg = "\nGAME OVER! Score: "
+data score_msg = "Score: "
+data you_got = "\nYou got: "
+data points_msg = " points\n"
+data enter_msg = "Press Enter to play again..."
+data input_line = ""
+data prompt = "WASD+Enter: "
+
+qword running = 1
+qword frame = 0
+qword dir_x = 1
+qword dir_y = 0
+qword head_x = 8
+qword head_y = 8
+qword tail_x = 8
+qword tail_y = 8
+qword food_x = 12
+qword food_y = 8
+qword score = 0
+qword body_len = 1
+qword body_idx = 0
+qword body_tail = 0
+qword new_dir_x = 1
+qword new_dir_y = 0
+qword max_body = 30
+qword rx = 0
+qword ry = 0
+qword i = 0
+qword j = 0
+qword pos = 0
+qword ate = 0
+qword ch = 0
+qword new_x = 0
+qword new_y = 0
+qword c = 0
+
+; Body buffer — up to 60 chars (30 segments * 2 bytes)
+data body_buf = ""
+
+; Grid buffer — 256 chars (16*16)
+data grid_buf = ""
+
+event run:
+    str_alloc body_buf, 60
+    str_alloc grid_buf, 256
+
+.new_game:
+    ; Reset state
+    mov dir_x, 1
+    mov dir_y, 0
+    mov new_dir_x, 1
+    mov new_dir_y, 0
+    mov head_x, 8
+    mov head_y, 8
+    mov score, 0
+    mov body_len, 1
+    mov body_idx, 0
+    mov body_tail, 0
+
+    ; Store initial head position in body buffer
+    set_char body_buf, 0, 8
+    set_char body_buf, 1, 8
+    mov body_idx, 2
+    mov body_tail, 0
+
+    ; Place food
+    mov rx, 5
+    mov ry, 5
+    mov food_x, rx
+    mov food_y, ry
+
+.game_loop:
+    ; Render frame
+    call render
+
+    ; Read input
+    print_data prompt
+    input_str input_line
+    get_char input_line, 0, ch
+
+    ; Update direction from input
+    mov new_dir_x, dir_x
+    mov new_dir_y, dir_y
+    cmp ch, 119   ; 'w'
+    jne .chk_a
+    mov new_dir_x, 0
+    mov new_dir_y, -1
+    jmp .dir_done
+.chk_a:
+    cmp ch, 97    ; 'a'
+    jne .chk_s
+    mov new_dir_x, -1
+    mov new_dir_y, 0
+    jmp .dir_done
+.chk_s:
+    cmp ch, 115   ; 's'
+    jne .chk_d
+    mov new_dir_x, 0
+    mov new_dir_y, 1
+    jmp .dir_done
+.chk_d:
+    cmp ch, 100   ; 'd'
+    jne .dir_done
+    mov new_dir_x, 1
+    mov new_dir_y, 0
+
+.dir_done:
+    ; Prevent 180-degree turn
+    mov rx, dir_x
+    add rx, new_dir_x
+    if rx
+    mov dir_x, new_dir_x
+    mov dir_y, new_dir_y
+    endif
+
+    ; Calculate new head position
+    mov rx, head_x
+    add rx, dir_x
+    mov new_x, rx
+    mov ry, head_y
+    add ry, dir_y
+    mov new_y, ry
+
+    ; Wall collision
+    mov rx, new_x
+    cmp rx, 0
+    jl .game_over
+    cmp rx, 15
+    jg .game_over
+    mov ry, new_y
+    cmp ry, 0
+    jl .game_over
+    cmp ry, 15
+    jg .game_over
+
+    ; Self collision — check if new head overlaps body
+    call check_self_collision
+    cmp rx, 1
+    je .game_over
+
+    ; Move snake: store new head position
+    set_char body_buf, body_idx, new_x
+    mov rx, body_idx
+    add rx, 1
+    set_char body_buf, rx, new_y
+    mov rx, body_idx
+    add rx, 2
+    mov body_idx, rx
+    inc body_len
+
+    ; Update head position
+    mov head_x, new_x
+    mov head_y, new_y
+
+    ; Check if eating food
+    mov ate, 0
+    cmp head_x, food_x
+    jne .no_eat
+    cmp head_y, food_y
+    jne .no_eat
+    mov ate, 1
+    inc score
+    call place_food
+
+.no_eat:
+    ; Remove tail if not eating
+    cmp ate, 1
+    je .skip_tail
+
+    ; Advance tail
+    mov rx, body_tail
+    add rx, 2
+    mov body_tail, rx
+    dec body_len
+
+    ; Wrap body buffer indices
+    mov rx, body_idx
+    cmp rx, 60
+    jl .skip_tail
+    mov body_idx, 0
+
+    mov rx, body_tail
+    cmp rx, 60
+    jl .skip_tail
+    mov body_tail, 0
+
+.skip_tail:
+    ; Delay
+    sleep_ms 150
+    jmp .game_loop
+
+.game_over:
+    print_data game_over_msg
+    print_u64 score
+    println
+    println
+    print_data enter_msg
+    input_str input_line
+    jmp .new_game
+
+proc render:
+    ; Clear screen
+    print_data clear_seq
+
+    ; Print score
+    print_data score_msg
+    print_u64 score
+    println
+
+    ; Top wall
+    print_data wall_h
+
+    ; For each row
+    mov ry, 0
+.row_loop:
+    cmp ry, 16
+    jae .row_done
+
+    print_data wall_s
+
+    mov rx, 0
+.col_loop:
+    cmp rx, 16
+    jae .col_done
+
+    ; Check if current position is snake body
+    call check_pos_is_snake
+    cmp r0, 1
+    jne .check_food
+    print "O"
+    jmp .next_col
+
+.check_food:
+    cmp rx, food_x
+    jne .check_empty
+    cmp ry, food_y
+    jne .check_empty
+    print "*"
+    jmp .next_col
+
+.check_empty:
+    print " "
+
+.next_col:
+    inc rx
+    jmp .col_loop
+
+.col_done:
+    print_data wall_e
+    inc ry
+    jmp .row_loop
+
+.row_done:
+    ; Bottom wall
+    print_data wall_h
+    ret
+
+; Check if (rx, ry) is in the snake body
+; Returns r0 = 1 if yes, 0 if no
+proc check_pos_is_snake:
+    mov r0, 0
+    mov i, body_tail
+
+.loop:
+    mov rx, i
+    cmp rx, body_idx
+    je .done
+    cmp rx, 60
+    jae .done
+
+    get_char body_buf, i, r1
+    cmp r1, rx
+    jne .next
+    mov r1, i
+    add r1, 1
+    get_char body_buf, r1, r2
+    cmp r2, ry
+    jne .next
+    mov r0, 1
+    ret
+
+.next:
+    add i, 2
+    jmp .loop
+
+.done:
+    ret
+
+; Check if (new_x, new_y) collides with body
+; Returns rx = 1 if collision
+proc check_self_collision:
+    mov r0, 0
+    mov i, body_tail
+
+.loop2:
+    mov rx, i
+    cmp rx, body_idx
+    je .no_collide
+    cmp rx, 60
+    jae .no_collide
+
+    get_char body_buf, i, r1
+    cmp r1, new_x
+    jne .next2
+    mov r1, i
+    add r1, 1
+    get_char body_buf, r1, r2
+    cmp r2, new_y
+    jne .next2
+    mov rx, 1
+    ret
+
+.next2:
+    add i, 2
+    jmp .loop2
+
+.no_collide:
+    mov rx, 0
+    ret
+
+; Place food at random position
+proc place_food:
+    random_range rx, 0, 15
+    mov food_x, rx
+    random_range ry, 0, 15
+    mov food_y, ry
+    ret

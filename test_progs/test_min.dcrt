@@ -1,0 +1,4 @@
+target mips
+entry main
+event main:
+    ret
