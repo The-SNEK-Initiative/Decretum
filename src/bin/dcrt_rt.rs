@@ -10,7 +10,7 @@ fn main() {
 fn run() -> Result<(), String> {
     let current_exe = std::env::current_exe().map_err(|e| format!("failed to get exe: {e}"))?;
     let data = std::fs::read(&current_exe).map_err(|e| format!("failed to read exe: {e}"))?;
-    let magic = decretum::portable::dcrt_embed_magic();
+    let magic = decretum::vm::dcrt_embed_magic();
     if data.len() < 20 || data[data.len() - 16..] != magic {
         return Err("no embedded Decretum bytecode payload found".to_string());
     }

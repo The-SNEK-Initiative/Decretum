@@ -23,7 +23,7 @@ path = "src/bin/ide.rs"
 
 [[bin]]
 name = "decretum"
-path = "src/main.rs"
+path = "src/bin/decretumc.rs"
 
 [[bin]]
 name = "dcrt_rt"

@@ -5,7 +5,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![allow(deprecated)]
 
-#[path = "../docs_data.rs"]
+#[path = "../tools/docs_data.rs"]
 mod docs_data;
 
 use decretum::{
@@ -95,7 +95,7 @@ fn main() -> Result<(), eframe::Error> {
 fn run_embedded_payload_if_present() -> Option<Result<i32, String>> {
     let current_exe = std::env::current_exe().ok()?;
     let data = std::fs::read(&current_exe).ok()?;
-    let magic = decretum::portable::dcrt_embed_magic();
+    let magic = decretum::vm::dcrt_embed_magic();
     if data.len() < 20 || data[data.len() - 16..] != magic {
         return None;
     }
