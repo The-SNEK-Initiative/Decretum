@@ -1,8 +1,8 @@
 // 8-qubit quantum circuit compiler. Shares the core representation and
 // optimisers with quantum64 but targets smaller circuits
 
-use crate::frontend::*;
 use crate::backend::quantum::core::*;
+use crate::frontend::*;
 use std::f64::consts::PI;
 use std::path::{Path, PathBuf};
 

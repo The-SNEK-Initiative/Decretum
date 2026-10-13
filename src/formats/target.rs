@@ -4,8 +4,7 @@ use crate::frontend::Program;
 
 use super::super::backend::target::{OutputKind, Target};
 use super::{
-    DirectBiosBuilder, DirectElf32Builder, DirectElfBuilder, DirectMachoBuilder,
-    DirectWin32Builder,
+    DirectBiosBuilder, DirectElf32Builder, DirectElfBuilder, DirectMachoBuilder, DirectWin32Builder,
 };
 
 pub struct BiosTarget;

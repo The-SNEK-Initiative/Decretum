@@ -1,8 +1,8 @@
 // Mach-O 64-bit executable wrapper (macOS)
 // Uses AArch64 machine code from the AArch64 backend
 
-use crate::frontend::Program;
 use crate::backend::arm::aarch64::DirectAarch64Builder;
+use crate::frontend::Program;
 use std::path::{Path, PathBuf};
 
 pub struct MachoBuildOutput {

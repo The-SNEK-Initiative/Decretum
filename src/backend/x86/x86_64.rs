@@ -1,5 +1,5 @@
-use crate::frontend::Program;
 use crate::backend::x86::uefi::DirectUefiAssembler;
+use crate::frontend::Program;
 use std::path::{Path, PathBuf};
 
 pub struct X86_64BuildOutput {

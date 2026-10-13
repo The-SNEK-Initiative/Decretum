@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use crate::frontend::Program;
 
 use super::super::target::{OutputKind, Target};
-use super::{DirectQuantum64Builder, DirectQuantum8Builder};
+use super::{DirectQuantum8Builder, DirectQuantum64Builder};
 
 pub struct Quantum8Target;
 

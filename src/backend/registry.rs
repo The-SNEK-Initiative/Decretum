@@ -6,7 +6,7 @@ use super::console::target::{
 };
 use super::dsp::target::{BlackfinTarget, SharcTarget, Tms320Target};
 use super::exotic::target::{
-    DlxTarget, HarvardTarget, Ia64Target, JovialTarget, Lc3Target, MicroblazeTarget, Mico32Target,
+    DlxTarget, HarvardTarget, Ia64Target, JovialTarget, Lc3Target, Mico32Target, MicroblazeTarget,
     Mil1750aTarget, MillTarget, MmixTarget, Nios2Target, OpenriscTarget, PicoblazeTarget,
     TernaryTarget, VliwTarget,
 };
@@ -15,13 +15,13 @@ use super::mcu::target::{
     ArduinoEsp32Target, AvrTarget, C166Target, FrTarget, H8Target, M16cTarget, Msp430Target,
     Nec78kTarget, PicTarget, R8cTarget, Rl78Target, RxTarget, Xc800Target,
 };
-use super::quantum::target::{Quantum64Target, Quantum8Target};
+use super::quantum::target::{Quantum8Target, Quantum64Target};
 use super::risc::target::{AlphaTarget, MipsTarget, PariscTarget, PpcTarget, SparcTarget};
 use super::riscv::target::{RiscvCheriTarget, RiscvTarget};
 use super::soviet::target::{BesmTarget, ElbrusTarget, MirTarget, UralTarget};
 use super::vintage::target::{
-    Cdc6600Target, Hp3000Target, M6502Target, M6800Target, M6809Target, Mos6501Target, Pdp11Target,
-    Pdp8Target, S360Target, UnivacTarget, VaxTarget, Z80Target, ZArchTarget,
+    Cdc6600Target, Hp3000Target, M6502Target, M6800Target, M6809Target, Mos6501Target, Pdp8Target,
+    Pdp11Target, S360Target, UnivacTarget, VaxTarget, Z80Target, ZArchTarget,
 };
 use super::x86::target::{
     I4004Target, I8008Target, I8080Target, I8086Target, NecV20Target, UefiTarget, X86_64Target,
@@ -29,7 +29,7 @@ use super::x86::target::{
 use crate::formats::target::{BiosTarget, Elf32Target, ElfTarget, MachoTarget, Win32Target};
 use crate::vm::target::{PortableTarget, VmTarget};
 
-static TARGETS: &[(&str, &dyn Target)] = &[
+static TARGETS: &[(&str, &(dyn Target + Sync))] = &[
     ("6502", &M6502Target),
     ("6809", &M6809Target),
     ("aarch64", &Aarch64Target),
@@ -120,7 +120,10 @@ pub struct TargetRegistry;
 
 impl TargetRegistry {
     pub fn get(name: &str) -> Option<&'static dyn Target> {
-        TARGETS.iter().find(|(n, _)| *n == name).map(|(_, t)| *t)
+        TARGETS
+            .iter()
+            .find(|(n, _)| *n == name)
+            .map(|(_, t)| -> &'static dyn Target { *t })
     }
     pub fn names() -> Vec<&'static str> {
         TARGETS.iter().map(|(n, _)| *n).collect()
