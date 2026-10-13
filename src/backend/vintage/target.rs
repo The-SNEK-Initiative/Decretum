@@ -5,8 +5,8 @@ use crate::frontend::Program;
 use super::super::target::{OutputKind, Target};
 use super::{
     Cdc6600Builder, Direct6502Builder, Direct6809Builder, DirectZ80Builder, Hp3000Builder,
-    M6800Builder, Mos6501Builder, Pdp11Builder, Pdp8Builder, S360Builder, UnivacBuilder, VaxBuilder,
-    ZArchBuilder,
+    M6800Builder, Mos6501Builder, Pdp8Builder, Pdp11Builder, S360Builder, UnivacBuilder,
+    VaxBuilder, ZArchBuilder,
 };
 
 pub struct M6502Target;

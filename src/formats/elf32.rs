@@ -1,8 +1,8 @@
 // ELF32 (Linux 32-bit) executable wrapper
 // Uses i386 instruction encoding
 
-use crate::frontend::Program;
 use crate::backend::x86::i386::I386Assembler;
+use crate::frontend::Program;
 use std::path::{Path, PathBuf};
 
 pub struct Elf32BuildOutput {

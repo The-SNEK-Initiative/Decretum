@@ -5,8 +5,8 @@ use clap::{Parser as ClapParser, Subcommand};
 use decretum::{
     DirectAarch64Builder, DirectArmCmBuilder, DirectBiosBuilder, DirectCheriBuilder,
     DirectElf32Builder, DirectElfBuilder, DirectMachoBuilder, DirectRisCvCheriBuilder,
-    DirectRiscvBuilder, DirectUefiBuilder, DirectVmBuilder, DirectWin32Builder, DirectX86_64Builder,
-    NativeStackBuilder, Parser, PortableBuilder, TargetRegistry,
+    DirectRiscvBuilder, DirectUefiBuilder, DirectVmBuilder, DirectWin32Builder,
+    DirectX86_64Builder, NativeStackBuilder, Parser, PortableBuilder, TargetRegistry,
 };
 
 #[derive(ClapParser, Debug)]
@@ -310,10 +310,7 @@ fn run_main() -> Result<(), String> {
             let source = load_source_from_inputs(&inputs)?;
             let program = Parser::parse(&source).map_err(|e| e.to_string())?;
             let target = TargetRegistry::get(&program.target).ok_or_else(|| {
-                format!(
-                    "compile-arch doesn't support target '{}'",
-                    program.target
-                )
+                format!("compile-arch doesn't support target '{}'", program.target)
             })?;
             let path = target.build(&program, &out_file)?;
             println!("wrote {}", path.display());

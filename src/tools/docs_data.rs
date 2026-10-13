@@ -4,7 +4,10 @@ pub const DOCS: &[(&str, &str)] = &[
         "Getting Started",
         include_str!("../../docs/getting-started/index.html"),
     ),
-    ("Syntax Guide", include_str!("../../docs/language/syntax.html")),
+    (
+        "Syntax Guide",
+        include_str!("../../docs/language/syntax.html"),
+    ),
     (
         "Instruction Model",
         include_str!("../../docs/language/expressions.html"),

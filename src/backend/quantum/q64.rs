@@ -1,8 +1,8 @@
 // 64-qubit quantum circuit compiler. Same shit as the 8-qubit one but adds: circuit optimisation,
 // OpenQASM export and classical control via measurement feedback
 
-use crate::frontend::*;
 use crate::backend::quantum::core::*;
+use crate::frontend::*;
 use std::path::{Path, PathBuf};
 
 pub struct Quantum64BuildOutput {

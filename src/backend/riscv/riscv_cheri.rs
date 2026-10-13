@@ -1,6 +1,6 @@
 // RISC-V CHERI - delegates to RISC-V backend
-use crate::frontend::Program;
 use crate::backend::riscv::riscv::DirectRiscvBuilder;
+use crate::frontend::Program;
 use std::path::{Path, PathBuf};
 
 pub struct RisCvCheriBuildOutput {

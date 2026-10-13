@@ -1,8 +1,8 @@
 // ELF64 executable wrapper (Linux x86-64)
 // Uses x86-64 machine code from the UEFI assembler
 
-use crate::frontend::Program;
 use crate::backend::x86::uefi::DirectUefiAssembler;
+use crate::frontend::Program;
 use std::path::{Path, PathBuf};
 
 pub struct ElfBuildOutput {
